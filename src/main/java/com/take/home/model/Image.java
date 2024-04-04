@@ -2,10 +2,16 @@ package com.take.home.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import java.util.List;
 
 @Getter
 @Setter
 public class Image {
-    private String id;
+    @Id
+    private Long id;
     private String metadata;
+    private String label;
+    private String identifier;
+    private List<String> detectedObjects;
 }

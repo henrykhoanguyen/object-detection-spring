@@ -1,6 +1,8 @@
 package com.take.home.controller;
 
+import com.take.home.model.ImageRequest;
 import com.take.home.repository.ImaggaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class ImaggaController {
 
+    @Autowired
     private final ImaggaRepository repository;
 
     ImaggaController(ImaggaRepository repository) {
@@ -30,7 +33,8 @@ public class ImaggaController {
     }
 
     @PostMapping("images")
-    public ResponseEntity objectDetection(@RequestBody String requestBody){
+    public ResponseEntity objectDetection(@RequestBody ImageRequest imageRequest){
+
         return ResponseEntity.ok().body(/* TODO */);
     }
 }
