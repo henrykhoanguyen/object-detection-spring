@@ -7,19 +7,49 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import com.take.home.model.Image;
 import com.take.home.model.ImageRequest;
+import com.take.home.repository.ImaggaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
 public class ImageService {
 
+    @Autowired
+    private ImaggaRepository imageRepository;
 
-    public static String extractMetadataFromImageUrl(String imageUrl) throws IOException, ImageProcessingException {
+    public List<Image> getAllImages(){
+        return imageRepository.findAll();
+    }
+
+    public Image getImage(String imageId){
+        return imageRepository.findById(imageId);
+    }
+
+    public List<Image> getImagesWithObjects(String[] objects){
+        return imageRepository.findImagesByObjects(objects);
+    }
+
+    public Image detectObjectsFromImage(ImageRequest imageRequest){
+        String imageUrl = imageRequest.getImageUrl();
+        String imageLabel = imageRequest.getLabel();
+        boolean enableObjectDetection = imageRequest.isEnableObjectDetection();
+        List<String> detectedObjects = null;
+
+        if (enableObjectDetection) {
+
+        }
+
+        return new Image();
+    }
+
+    public String extractMetadataFromImageUrl(String imageUrl) throws IOException, ImageProcessingException {
         Map<String, String> metadataMap = new HashMap<>();
 
         // Fetch image bytes from URL
