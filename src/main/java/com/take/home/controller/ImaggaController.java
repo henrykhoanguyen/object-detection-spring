@@ -49,7 +49,7 @@ public class ImaggaController {
     @PostMapping("images")
     public ResponseEntity objectDetection(@RequestBody ImageRequest imageRequest) throws ImageProcessingException, IOException {
 //        imageService.extractMetadataFromImageUrl(imageRequest);
-        return ResponseEntity.ok().body(imageService.extractMetadataFromImageUrl(imageRequest.getImageUrl()));
+        return ResponseEntity.ok().body(imageService.getImageInfo(imageRequest));
     }
 }
 

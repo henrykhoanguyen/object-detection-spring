@@ -36,7 +36,7 @@ public class ImageService {
         return imageRepository.findImagesByObjects(objects);
     }
 
-    public Image detectObjectsFromImage(ImageRequest imageRequest){
+    public Image getImageInfo(ImageRequest imageRequest){
         String imageUrl = imageRequest.getImageUrl();
         String imageLabel = imageRequest.getLabel();
         boolean enableObjectDetection = imageRequest.isEnableObjectDetection();
