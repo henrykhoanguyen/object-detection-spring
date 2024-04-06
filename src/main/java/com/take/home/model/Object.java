@@ -9,12 +9,10 @@ import java.util.List;
 
 @Getter
 @Setter
-@Document("images")
-public class Image {
+@Document("objects")
+public class Object {
     @Id
     private Long id;
-    private String metadata;
-    private String label;
-    private String imageUrl;
-    private List<String> detectedObjects;
+    private String name;
+    private List<String> imageId;
 }

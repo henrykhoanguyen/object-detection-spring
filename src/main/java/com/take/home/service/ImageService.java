@@ -7,49 +7,70 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import com.take.home.model.Image;
 import com.take.home.model.ImageRequest;
-import com.take.home.repository.ImaggaRepository;
+import com.take.home.repository.ImageRepository;
+import com.take.home.repository.ObjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ImageService {
 
     @Autowired
-    private ImaggaRepository imageRepository;
+    private ImageRepository imageRepository;
+
+    @Autowired
+    private ObjectRepository objectRepository;
+
+    @Autowired
+    private DetectionService detectionService;
 
     public List<Image> getAllImages(){
         return imageRepository.findAll();
     }
 
-    public Image getImage(String imageId){
-        return imageRepository.findById(imageId);
+    public Image getImage(Long imageId){
+        return imageRepository.findById(imageId).get();
     }
 
-    public List<Image> getImagesWithObjects(String[] objects){
-        return imageRepository.findImagesByObjects(objects);
+    public List<Image> getImagesWithObjects(List<String> objects){
+        List<Image> images = new ArrayList<>();
+        for (String object: objects){
+            objectRepository.findByName(object)
+                    .getImageId()
+                    .forEach(id -> {
+                        Image image = imageRepository.findById(Long.parseLong(id)).get();
+                        if (image != null){
+                            images.add(image);
+                        } else {
+                            throw new NoSuchElementException("No Image Found.");
+                        }
+            });
+        }
+        return images;
     }
 
-    public Image getImageInfo(ImageRequest imageRequest){
+    public Image getImageInfo(ImageRequest imageRequest) throws IOException {
         String imageUrl = imageRequest.getImageUrl();
         String imageLabel = imageRequest.getLabel();
         boolean enableObjectDetection = imageRequest.isEnableObjectDetection();
-        List<String> detectedObjects = null;
+        List<String> detectedObjects = new ArrayList<>();
 
         if (enableObjectDetection) {
-
+            detectionService.getObjectsDetected(imageUrl)
+                    .stream()
+                    .limit(10)
+                    .forEach(detectedObjects::add);
         }
 
         return new Image();
     }
 
-    public String extractMetadataFromImageUrl(String imageUrl) throws IOException, ImageProcessingException {
+    private String extractMetadataFromImageUrl(String imageUrl) throws IOException, ImageProcessingException {
         Map<String, String> metadataMap = new HashMap<>();
 
         // Fetch image bytes from URL
@@ -66,6 +87,7 @@ public class ImageService {
 
         return metadataMap.toString();
     }
+
 }
 
 //        System.out.println(extractMetadataFromUrl("https://upload.wikimedia.org/wikipedia/commons/d/d3/16-04-04-Felsendom-Tempelberg-Jerusalem-RalfR-WAT_6385.jpg"));
