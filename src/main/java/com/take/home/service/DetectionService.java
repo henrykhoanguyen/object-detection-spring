@@ -48,7 +48,7 @@ public class DetectionService {
         return extractObjects(jsonResponse);
     }
 
-    public static List<String> extractObjects(String jsonResponse) {
+    private static List<String> extractObjects(String jsonResponse) {
         List<String> tags = new ArrayList<>();
         try {
             ObjectMapper objectMapper = new ObjectMapper();

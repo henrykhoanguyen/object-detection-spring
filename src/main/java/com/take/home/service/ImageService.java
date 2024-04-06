@@ -89,6 +89,7 @@ public class ImageService {
     }
 
 }
+// TODO: populate db, inject image info into db, test
 
 //        System.out.println(extractMetadataFromUrl("https://upload.wikimedia.org/wikipedia/commons/d/d3/16-04-04-Felsendom-Tempelberg-Jerusalem-RalfR-WAT_6385.jpg"));
 //        System.out.println(extractMetadataFromUrl("https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg"));
