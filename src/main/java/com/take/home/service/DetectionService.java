@@ -2,7 +2,9 @@ package com.take.home.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.take.home.config.ImaggaConfiguration;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,21 +16,20 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+@Service
 public class DetectionService {
 
-    @Value("${imagga.credentials}")
-    private String credentials;
-    @Value("${imagga.api}")
-    private String endpoint_url;
+    private static ImaggaConfiguration configuration;
 
-    private String basicAuth;
+    private final String basicAuth;
 
     public DetectionService() {
-        this.basicAuth = Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));;
+// TODO: FIX THIS. NULL Exception at configuration.getCredentials()
+        this.basicAuth = Base64.getEncoder().encodeToString(configuration.getCredentials().getBytes(StandardCharsets.UTF_8));
     }
 
     public List<String> getObjectsDetected(String imageUrl) throws IOException {
-        String url = endpoint_url + "?image_url=" + imageUrl;
+        String url = configuration.getEndpointUrl() + "?image_url=" + imageUrl;
         URL urlObject = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) urlObject.openConnection();
 
