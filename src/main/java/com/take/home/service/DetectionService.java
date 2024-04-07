@@ -3,6 +3,8 @@ package com.take.home.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.take.home.config.ImaggaConfiguration;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,13 +21,13 @@ import java.util.List;
 @Service
 public class DetectionService {
 
-    private static ImaggaConfiguration configuration;
+    private final ImaggaConfiguration configuration;
 
     private final String basicAuth;
 
-    public DetectionService() {
-// TODO: FIX THIS. NULL Exception at configuration.getCredentials()
-        this.basicAuth = Base64.getEncoder().encodeToString(configuration.getCredentials().getBytes(StandardCharsets.UTF_8));
+    public DetectionService(ImaggaConfiguration configuration) {
+        this.configuration = configuration;
+        this.basicAuth = configuration.getBasicAuth();
     }
 
     public List<String> getObjectsDetected(String imageUrl) throws IOException {
@@ -60,7 +62,7 @@ public class DetectionService {
                 tags.add(tag);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return tags;
     }

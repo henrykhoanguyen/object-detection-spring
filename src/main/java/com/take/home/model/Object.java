@@ -1,5 +1,6 @@
 package com.take.home.model;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -9,6 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@Builder
 @Document("objects")
 public class Object {
     @Id

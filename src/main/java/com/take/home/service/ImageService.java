@@ -9,6 +9,7 @@ import com.take.home.model.Image;
 import com.take.home.model.ImageRequest;
 import com.take.home.repository.ImageRepository;
 import com.take.home.repository.ObjectRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class ImageService {
 
     @Autowired
@@ -26,8 +28,7 @@ public class ImageService {
     @Autowired
     private ObjectRepository objectRepository;
 
-    @Autowired
-    private DetectionService detectionService;
+    private final DetectionService detectionService;
 
     public List<Image> getAllImages(){
         return imageRepository.findAll();
@@ -54,7 +55,7 @@ public class ImageService {
         return images;
     }
 
-    public Image getImageInfo(ImageRequest imageRequest) throws IOException {
+    public Image getImageInfo(ImageRequest imageRequest) throws IOException, ImageProcessingException {
         String imageUrl = imageRequest.getImageUrl();
         String imageLabel = imageRequest.getLabel();
         boolean enableObjectDetection = imageRequest.isEnableObjectDetection();
@@ -66,8 +67,23 @@ public class ImageService {
                     .limit(10)
                     .forEach(detectedObjects::add);
         }
+        if (imageLabel.isEmpty() || imageLabel.isBlank()){
+            imageLabel = detectedObjects.get(0);
+        }
 
-        return new Image();
+        String imageMetadata = extractMetadataFromImageUrl(imageUrl);
+
+        Image image = Image.builder()
+                .label(imageLabel)
+                .imageUrl(imageUrl)
+                .metadata(imageMetadata)
+                .detectedObjects(detectedObjects)
+                .build();
+
+        // Push Image into MongoDB
+        imageRepository.save(image);
+
+        return image;
     }
 
     private String extractMetadataFromImageUrl(String imageUrl) throws IOException, ImageProcessingException {

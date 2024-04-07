@@ -60,6 +60,8 @@ public class ImageController {
             image = imageService.getImageInfo(imageRequest);
         } catch (IOException e) {
             return new ResponseEntity(e, HttpStatus.BAD_REQUEST);
+        } catch (ImageProcessingException e) {
+            throw new RuntimeException(e);
         }
         return new ResponseEntity<>(image, HttpStatus.OK);
     }
