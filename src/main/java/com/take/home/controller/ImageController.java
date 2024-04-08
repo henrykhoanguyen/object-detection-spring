@@ -24,15 +24,22 @@ public class ImageController {
     private final ImageService imageService;
 
     @GetMapping("/images")
-    public ResponseEntity<List<Image>> getImages(@RequestParam("objects") String requestedObjects){
+    public ResponseEntity<List<Image>> getAllImages(){
         List<Image> images;
         try {
-            System.out.println("REQ OBJECT" + requestedObjects);
-            if (requestedObjects == null){
-                images = imageService.getAllImages();
-                return ResponseEntity.ok().body(images);
-            }
+            images = imageService.getAllImages();
 
+        } catch (NoSuchElementException ex){
+            return new ResponseEntity(ex, HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity(images, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/images", params = "objects")
+    public ResponseEntity<List<Image>> getImagesWithObjects(@RequestParam("objects") String requestedObjects){
+        List<Image> images;
+        try {
             List<String> objects = Arrays.asList(requestedObjects.split(","));
 
             images = imageService.getImagesWithObjects(objects);

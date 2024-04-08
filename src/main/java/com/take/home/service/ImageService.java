@@ -5,6 +5,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
+import com.take.home.model.Color;
 import com.take.home.model.Image;
 import com.take.home.model.ImageRequest;
 import com.take.home.model.Object;
@@ -62,60 +63,44 @@ public class ImageService {
 
         if (enableObjectDetection) {
             // identify objects using Imagga
-            detectionService.getObjectsDetected(imageUrl)
+            detectionService.getDetectedObjects(imageUrl)
                     .stream()
                     .limit(10)
                     .forEach(objectName -> {
                         // Retrieve objects if exist in db
                         // create new if not
-                        Object tempObject = objectRepository.findByName(objectName);
-                        if (tempObject == null){
-                            tempObject = Object.builder().name(objectName).build();
+                        Object objectBuilder = objectRepository.findByName(objectName);
+                        if (objectBuilder == null){
+                            objectBuilder = Object.builder().name(objectName).build();
                         }
-                        detectedObjects.add(tempObject);
+//                        objectRepository.save(objectBuilder);
+                        detectedObjects.add(objectBuilder);
                     });
         }
         if (imageLabel.isEmpty() || imageLabel.isBlank()){
-            imageLabel = detectedObjects.get(0).getName();
+            imageLabel = detectionService.getLabel(imageUrl);
         }
 
-        String imageMetadata = extractMetadataFromImageUrl(imageUrl);
+        List<Color> imageMetadata = detectionService.getMetadata(imageUrl);
 
-        Image image = Image.builder()
+        Image imageBuilder = Image.builder()
                 .label(imageLabel)
                 .imageUrl(imageUrl)
-                .metadata(imageMetadata)
-                .objects(new HashSet<>(detectedObjects))
                 .build();
 
+        imageBuilder.setColors(imageMetadata);
+        imageBuilder.setObjects(new HashSet<>(detectedObjects));
+
         // Push Image into MongoDB
-        imageRepository.save(image);
+        imageRepository.save(imageBuilder);
 
-        return image;
-    }
-
-    private String extractMetadataFromImageUrl(String imageUrl) throws IOException, ImageProcessingException {
-        Map<String, String> metadataMap = new HashMap<>();
-
-        // Fetch image bytes from URL
-        byte[] imageBytes = new RestTemplate().getForObject(imageUrl, byte[].class);
-
-        // Read metadata from image bytes
-        Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(imageBytes));
-
-        for (Directory directory : metadata.getDirectories()) {
-            for (Tag tag : directory.getTags()) {
-                metadataMap.put(tag.getTagName(), tag.getDescription());
-            }
-        }
-
-        return metadataMap.toString();
+        return imageBuilder;
     }
 
 }
 // TODO: populate db, inject image info into db, test
 
-//        https://upload.wikimedia.org/wikipedia/commons/d/d3/16-04-04-Felsendom-Tempelberg-Jerusalem-RalfR-WAT_6385.jpg
+//        https://imagga.com/static/images/tagging/wind-farm-538576_640.jpg
 //        https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg
 //        https://upload.wikimedia.org/wikipedia/commons/b/b6/Felis_catus-cat_on_snow.jpg
 //        https://upload.wikimedia.org/wikipedia/commons/6/6e/Paris_-_Eiffelturm_und_Marsfeld2.jpg

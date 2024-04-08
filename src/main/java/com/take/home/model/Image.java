@@ -1,29 +1,32 @@
 package com.take.home.model;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.List;
 import java.util.Set;
 
 @Builder
 @Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class Image {
     @Id
-    @Column(name="image_id")
+    @Column(name = "image_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String metadata;
     private String label;
     private String imageUrl;
 
-    @ManyToMany
-    @JoinTable(
-            name = "image_object",
-            joinColumns = @JoinColumn(name = "image_id"),
-            inverseJoinColumns = @JoinColumn(name = "object_id")
-    )
+    @OneToMany(mappedBy = "image", cascade = CascadeType.ALL)
+    private List<Color> colors;
+
+    @ManyToMany(mappedBy = "images", cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
     private Set<Object> objects;
+//    TODO: FIX THIS MISSING OBJECTS AND COLORS IN DB
 }

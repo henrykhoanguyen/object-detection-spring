@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ImageRepository extends JpaRepository<Image, Long> {
     // Return all image metadata in DB
-    List<Image> findAll();
+//    List<Image> findAll();
 
     // Return metadata in DB from request imageId
 //    Image findById(Long imageId);

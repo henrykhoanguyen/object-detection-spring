@@ -5,7 +5,7 @@ Create a file `application.properties`
 spring.application.name=ObjectDetection
 
 imagga.credentials=<username>:<password>
-imagga.api=https://api.imagga.com/v2/tags
+imagga.api=https://api.imagga.com/v2
 
 #MongoDB configuration
 spring.datasource.url=jdbc:mysql://localhost:3306/myImages
