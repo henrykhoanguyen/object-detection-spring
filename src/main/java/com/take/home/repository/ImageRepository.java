@@ -1,11 +1,11 @@
 package com.take.home.repository;
 
 import com.take.home.model.Image;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ImageRepository extends MongoRepository<Image, Long> {
+public interface ImageRepository extends JpaRepository<Image, Long> {
     // Return all image metadata in DB
     List<Image> findAll();
 

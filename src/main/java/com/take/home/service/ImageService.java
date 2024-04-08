@@ -7,6 +7,7 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import com.take.home.model.Image;
 import com.take.home.model.ImageRequest;
+import com.take.home.model.Object;
 import com.take.home.repository.ImageRepository;
 import com.take.home.repository.ObjectRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,40 +36,47 @@ public class ImageService {
     }
 
     public Image getImage(Long imageId){
-        return imageRepository.findById(imageId).get();
+        Image image = null;
+        try {
+            image = imageRepository.findById(imageId).get();
+        } catch (Exception e){
+            throw new NoSuchElementException(e);
+        }
+
+        return image;
     }
 
     public List<Image> getImagesWithObjects(List<String> objects){
-        List<Image> images = new ArrayList<>();
-        for (String object: objects){
-            objectRepository.findByName(object)
-                    .getImageId()
-                    .forEach(id -> {
-                        Image image = imageRepository.findById(Long.parseLong(id)).get();
-                        if (image != null){
-                            images.add(image);
-                        } else {
-                            throw new NoSuchElementException("No Image Found.");
-                        }
-            });
+        Set<Image> images = new HashSet<>();
+        for (String name: objects){
+            images.addAll(objectRepository.findByName(name).getImages());
         }
-        return images;
+        return List.copyOf(images);
     }
 
     public Image getImageInfo(ImageRequest imageRequest) throws IOException, ImageProcessingException {
         String imageUrl = imageRequest.getImageUrl();
         String imageLabel = imageRequest.getLabel();
         boolean enableObjectDetection = imageRequest.isEnableObjectDetection();
-        List<String> detectedObjects = new ArrayList<>();
+        List<Object> detectedObjects = new ArrayList<>();
 
         if (enableObjectDetection) {
+            // identify objects using Imagga
             detectionService.getObjectsDetected(imageUrl)
                     .stream()
                     .limit(10)
-                    .forEach(detectedObjects::add);
+                    .forEach(objectName -> {
+                        // Retrieve objects if exist in db
+                        // create new if not
+                        Object tempObject = objectRepository.findByName(objectName);
+                        if (tempObject == null){
+                            tempObject = Object.builder().name(objectName).build();
+                        }
+                        detectedObjects.add(tempObject);
+                    });
         }
         if (imageLabel.isEmpty() || imageLabel.isBlank()){
-            imageLabel = detectedObjects.get(0);
+            imageLabel = detectedObjects.get(0).getName();
         }
 
         String imageMetadata = extractMetadataFromImageUrl(imageUrl);
@@ -77,7 +85,7 @@ public class ImageService {
                 .label(imageLabel)
                 .imageUrl(imageUrl)
                 .metadata(imageMetadata)
-                .detectedObjects(detectedObjects)
+                .objects(new HashSet<>(detectedObjects))
                 .build();
 
         // Push Image into MongoDB
@@ -107,7 +115,7 @@ public class ImageService {
 }
 // TODO: populate db, inject image info into db, test
 
-//        System.out.println(extractMetadataFromUrl("https://upload.wikimedia.org/wikipedia/commons/d/d3/16-04-04-Felsendom-Tempelberg-Jerusalem-RalfR-WAT_6385.jpg"));
-//        System.out.println(extractMetadataFromUrl("https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg"));
-//        System.out.println(extractMetadataFromUrl("https://upload.wikimedia.org/wikipedia/commons/b/b6/Felis_catus-cat_on_snow.jpg"));
-//        System.out.println(extractMetadataFromUrl("https://upload.wikimedia.org/wikipedia/commons/6/6e/Paris_-_Eiffelturm_und_Marsfeld2.jpg"));
+//        https://upload.wikimedia.org/wikipedia/commons/d/d3/16-04-04-Felsendom-Tempelberg-Jerusalem-RalfR-WAT_6385.jpg
+//        https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg
+//        https://upload.wikimedia.org/wikipedia/commons/b/b6/Felis_catus-cat_on_snow.jpg
+//        https://upload.wikimedia.org/wikipedia/commons/6/6e/Paris_-_Eiffelturm_und_Marsfeld2.jpg

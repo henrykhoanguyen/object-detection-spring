@@ -1,24 +1,29 @@
 package com.take.home.model;
 
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
+import java.util.Set;
 
-@Getter
-@Setter
 @Builder
-@Document(collection = "images")
+@Getter
+@Entity
 public class Image {
-    @Field("_id")
-    private long id;
+    @Id
+    @Column(name="image_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String metadata;
     private String label;
     private String imageUrl;
-    private List<String> detectedObjects;
+
+    @ManyToMany
+    @JoinTable(
+            name = "image_object",
+            joinColumns = @JoinColumn(name = "image_id"),
+            inverseJoinColumns = @JoinColumn(name = "object_id")
+    )
+    private Set<Object> objects;
 }

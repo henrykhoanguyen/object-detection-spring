@@ -1,12 +1,11 @@
 package com.take.home.repository;
 
-import com.take.home.model.Image;
 import com.take.home.model.Object;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import java.util.List;
+public interface ObjectRepository extends JpaRepository<Object, Long> {
 
-public interface ObjectRepository extends MongoRepository<Object, Long> {
-
-    Object findByName(String object);
+    Object findByName(String name);
 }

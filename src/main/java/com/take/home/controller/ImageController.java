@@ -27,6 +27,7 @@ public class ImageController {
     public ResponseEntity<List<Image>> getImages(@RequestParam("objects") String requestedObjects){
         List<Image> images;
         try {
+            System.out.println("REQ OBJECT" + requestedObjects);
             if (requestedObjects == null){
                 images = imageService.getAllImages();
                 return ResponseEntity.ok().body(images);

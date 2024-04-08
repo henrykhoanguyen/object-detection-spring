@@ -1,20 +1,26 @@
 package com.take.home.model;
 
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-@Getter
-@Setter
+
 @Builder
-@Document("objects")
+@Getter
+@Entity
 public class Object {
     @Id
+    @Column(name = "object_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "name")
     private String name;
-    private List<String> imageId;
+
+    @ManyToMany(mappedBy = "image")
+    private Set<Image> images;
 }
