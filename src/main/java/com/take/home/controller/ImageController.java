@@ -1,6 +1,6 @@
 package com.take.home.controller;
 
-import com.drew.imaging.ImageProcessingException;
+import com.take.home.exception.ResourceNotFoundException;
 import com.take.home.model.Image;
 import com.take.home.model.ImageRequest;
 import com.take.home.service.ImageService;
@@ -10,11 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api")
@@ -25,11 +23,10 @@ public class ImageController {
 
     @GetMapping("/images")
     public ResponseEntity<List<Image>> getAllImages(){
-        List<Image> images;
-        try {
+        List<Image> images = new ArrayList<>();
+        try{
             images = imageService.getAllImages();
-
-        } catch (NoSuchElementException ex){
+        }catch (ResourceNotFoundException ex){
             return new ResponseEntity(ex, HttpStatus.NOT_FOUND);
         }
 
@@ -43,7 +40,7 @@ public class ImageController {
             List<String> objects = Arrays.asList(requestedObjects.split(","));
 
             images = imageService.getImagesWithObjects(objects);
-        } catch (NoSuchElementException ex){
+        } catch (ResourceNotFoundException ex){
             return new ResponseEntity(ex, HttpStatus.NOT_FOUND);
         }
 
@@ -55,7 +52,7 @@ public class ImageController {
         Image image = null;
         try{
             image = imageService.getImage(Long.parseLong(imageId));
-        } catch (NoSuchElementException ex){
+        } catch (ResourceNotFoundException ex){
             return new ResponseEntity(ex, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity(image, HttpStatus.OK);
@@ -66,10 +63,8 @@ public class ImageController {
         Image image = null;
         try{
             image = imageService.getImageInfo(imageRequest);
-        } catch (IOException e) {
+        } catch (ResourceNotFoundException e) {
             return new ResponseEntity(e, HttpStatus.BAD_REQUEST);
-        } catch (ImageProcessingException e) {
-            throw new RuntimeException(e);
         }
         return new ResponseEntity<>(image, HttpStatus.OK);
     }

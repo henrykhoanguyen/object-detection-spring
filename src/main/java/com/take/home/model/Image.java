@@ -3,6 +3,8 @@ package com.take.home.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,13 +22,21 @@ public class Image {
     private String label;
     private String imageUrl;
 
-    @OneToMany(mappedBy = "image", cascade = CascadeType.ALL)
-    private List<Color> colors;
+    @OneToMany(mappedBy = "image",cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            orphanRemoval = true)
+    private List<Color> colors = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "images", cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
-    })
-    private Set<Object> objects;
-//    TODO: FIX THIS MISSING OBJECTS AND COLORS IN DB
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            })
+    @JoinTable(
+            name = "image_objects",
+            joinColumns = @JoinColumn(name = "image_id"),
+            inverseJoinColumns = @JoinColumn(name = "object_id")
+    )
+    private Set<Object> objects = new HashSet<>();
+
 }

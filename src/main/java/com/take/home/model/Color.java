@@ -1,18 +1,17 @@
 package com.take.home.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Builder
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 public class Color {
     @Id
+    @Column(name = "color_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -24,6 +23,5 @@ public class Color {
     private String percentage;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "image_id")
     private Image image;
 }

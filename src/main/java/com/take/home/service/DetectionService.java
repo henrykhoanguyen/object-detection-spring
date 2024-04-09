@@ -74,7 +74,7 @@ public class DetectionService {
         return extractLabelFromJson(imageLabel);
     }
 
-    public List<Color> getMetadata(String imageUrl) {
+    public List<Color> getColors(String imageUrl) {
         String url = configuration.getEndpointUrl() + "/colors?image_url=" + imageUrl + "&overall_count=5&separated_count=0";
         String metadata = "";
         try {
@@ -123,7 +123,7 @@ public class DetectionService {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(imageLabel);
             JsonNode catNode = rootNode.path("result").path("categories");
-            label = catNode.path("name").path("en").asText();
+            label = catNode.get(0).path("name").path("en").asText();
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -150,7 +150,6 @@ public class DetectionService {
                         .percentage(percentage)
                         .build();
 
-//                colorRepository.save(colorBuilder);
                 colors.add(colorBuilder);
             }
         } catch (JsonProcessingException e) {
