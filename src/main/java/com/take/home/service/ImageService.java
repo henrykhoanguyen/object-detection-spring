@@ -52,6 +52,7 @@ public class ImageService {
 
         for (String name: objects){
             System.out.println(objectRepository.findImagesByName(name));
+//            TODO: THIS HASN'T WORKED
 //            List<Image> foundImages = objectRepository.findImagesByName(name);
 //            if (!foundImages.isEmpty()){
 //                foundImages.forEach(foundImage -> {
