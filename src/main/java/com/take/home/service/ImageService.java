@@ -51,7 +51,14 @@ public class ImageService {
         Set<Image> images = new HashSet<>();
 
         for (String name: objects){
-            images.addAll(objectRepository.findByName(name).getImages());
+            System.out.println(objectRepository.findImagesByName(name));
+//            TODO: THIS HASN'T WORKED
+//            List<Image> foundImages = objectRepository.findImagesByName(name);
+//            if (!foundImages.isEmpty()){
+//                foundImages.forEach(foundImage -> {
+//                    images.add(Image.builder().imageUrl(foundImage.getImageUrl()).build());
+//                });
+//            }
         }
 
         if(images.isEmpty()){

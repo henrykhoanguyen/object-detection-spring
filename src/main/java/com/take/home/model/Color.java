@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@Entity (name = "color")
 public class Color {
     @Id
     @Column(name = "color_id")
